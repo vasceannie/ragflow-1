@@ -1,0 +1,39 @@
+[phases.setup]
+nixPkgs = [
+    "python310",
+    "nodejs",
+    "nginx",
+    "docker",
+    "uv",
+    "gcc",
+    "pkg-config",
+    "openssl",
+    "libffi",
+    "libxml2",
+    "libxslt",
+    "icu",
+    "unixODBC"
+]
+
+[phases.install]
+cmds = [
+    "python -m venv /opt/venv",
+    ". /opt/venv/bin/activate",
+    "pip install uv",
+    "uv sync --python 3.10 --frozen",
+    "cd web && npm install"
+]
+
+[phases.build]
+cmds = [
+    "cd web && npm run build",
+    "chmod +x docker/entrypoint.sh"
+]
+
+[start]
+cmd = "bash docker/entrypoint.sh"
+
+[variables]
+PYTHONPATH = "/app"
+LD_LIBRARY_PATH = "/usr/lib/x86_64-linux-gnu/"
+PATH = "/opt/venv/bin:$PATH" 
