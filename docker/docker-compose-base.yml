@@ -48,7 +48,6 @@ services:
       - 23820
       - 5432
     env_file: .env
-
     environment:
       - TZ=${TIMEZONE}
     mem_limit: ${MEM_LIMIT}
