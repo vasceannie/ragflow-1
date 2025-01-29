@@ -1,47 +1,43 @@
 [phases.setup]
 nixPkgs = [
     "python310",
-    "nodejs",
+    "nodejs-18_x",
     "nginx",
-    "docker",
-    "uv",
     "gcc",
     "pkg-config",
     "openssl",
     "libffi",
     "libxml2",
     "libxslt",
-    "icu",
-    "unixODBC"
+    "icu"
 ]
 
 [phases.install]
 cmds = [
-    "python -m venv /opt/venv",
+    "python3.10 -m venv /opt/venv",
     ". /opt/venv/bin/activate",
     "pip install uv",
-    "uv sync --python 3.10 --frozen",
-    "cd web && npm install"
+    "uv sync --python 3.10 --frozen"
 ]
 
 [phases.build]
 cmds = [
-    "cd web && npm run build",
-    "[ ! -f docker/entrypoint.sh ] || chmod +x docker/entrypoint.sh"
+    "cd web && npm install && npm run build",
+    "chmod +x ../docker/entrypoint.sh"
 ]
 
 [start]
 cmd = """
+mkdir -p /app/conf
 if [ ! -f /app/conf/service_conf.yaml ]; then
-    mkdir -p /app/conf
     while IFS= read -r line || [[ -n "$line" ]]; do
         eval "echo \"$line\"" >> /app/conf/service_conf.yaml
     done < /app/conf/service_conf.yaml.template
 fi
-bash docker/entrypoint.sh
+./docker/entrypoint.sh
 """
 
 [variables]
 PYTHONPATH = "/app"
 LD_LIBRARY_PATH = "/usr/lib/x86_64-linux-gnu/"
-PATH = "/opt/venv/bin:$PATH" 
+PATH = "/opt/venv/bin:$PATH"
